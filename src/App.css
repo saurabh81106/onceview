@@ -32,7 +32,6 @@ body, html, #root {
   justify-content: center;
   align-items: center;
   padding: 20px;
-
 }
 
 .join input,
@@ -40,32 +39,32 @@ body, html, #root {
 .send textarea,
 .send button,
 .join button {
-  font-size: 16px;
+  font-size: 24px;
 }
 
 .join input {
-  padding: 14px;
-  font-size: 16px;
-  margin-top: 12px;
+  padding: 18px;
+  font-size: 22px;
+  margin-top: 16px;
   border-radius: 10px;
   border: 1px solid #444;
   background-color: #222;
   color: white;
   width: 100%;
-  max-width: 320px;
+  max-width: 400px;
 }
 
 .join button {
-  margin-top: 12px;
-  padding: 12px 20px;
-  font-size: 16px;
+  margin-top: 16px;
+  padding: 16px 24px;
+  font-size: 22px;
   background-color: #3b82f6;
   color: white;
   border: none;
   border-radius: 10px;
   cursor: pointer;
   width: 100%;
-  max-width: 320px;
+  max-width: 400px;
 }
 
 .join button:hover {
@@ -85,7 +84,7 @@ body, html, #root {
 
 /* === Status Bar === */
 .status-bar {
-  font-size: 20px;
+  font-size: 26px;
   color: #aaa;
   margin-bottom: 6px;
   display: flex;
@@ -110,7 +109,7 @@ body, html, #root {
 
 /* === Individual Message === */
 .message {
-   padding: 0 40px 8px 40px;
+  padding: 0 40px 8px 40px;
   border-radius: 12px;
   margin: 6px 0;
   max-width: 85%;
@@ -126,13 +125,11 @@ body, html, #root {
 .message.me {
   align-self: flex-end;
   background-color: #3b82f6;
-  color: white; 
+  color: white;
   font-size: 30px;
   border-bottom-right-radius: 0;
-  min-height: 50px;
   width: auto;
   max-width: 90vw;
-  height: auto;
   word-wrap: break-word;
   white-space: pre-wrap;
   padding: 10px 14px;
@@ -141,6 +138,7 @@ body, html, #root {
   line-height: 1.5;
   position: relative;
 }
+
 /* === Received from others === */
 .message.other {
   align-self: flex-start;
@@ -148,10 +146,8 @@ body, html, #root {
   color: #111;
   font-size: 30px;
   border-bottom-left-radius: 0;
-  min-height: 50px;
   width: auto;
   max-width: 90vw;
-  height: auto;
   word-wrap: break-word;
   white-space: pre-wrap;
   padding: 10px 14px;
@@ -185,7 +181,6 @@ body, html, #root {
   border-left: 3px solid #4fc3f7;
   padding-left: 8px;
   font-style: italic;
-
 }
 
 .reply-preview {
@@ -197,13 +192,14 @@ body, html, #root {
   color: #eee;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* <-- Important for multiline alignment */
+  align-items: flex-start;
   font-style: italic;
-  white-space: normal;     /* Allow wrapping */
+  white-space: normal;
   word-wrap: break-word;
-  max-width: 100%;         /* Prevent overflow */
+  max-width: 100%;
   flex-wrap: wrap;
 }
+
 .cancel-reply {
   background: none;
   border: none;
@@ -217,6 +213,7 @@ body, html, #root {
 .cancel-reply:hover {
   color: #fff;
 }
+
 .reply-icon {
   position: absolute;
   top: 60px;
@@ -230,17 +227,13 @@ body, html, #root {
   color: #999;
 }
 
-/* For your own message (left of blue bubble) */
 .reply-icon.left {
-  left: -36px;
+  left: -46px;
 }
 
-/* For others' message (right of white bubble) */
 .reply-icon.right {
-  right: -36px;
+  right: -46px;
 }
-
-
 
 /* === Input Section === */
 .send {
@@ -264,7 +257,7 @@ body, html, #root {
   border: 1px solid #444;
   resize: none;
   min-height: 150px;
-  max-height: 120px;
+  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -305,6 +298,8 @@ body, html, #root {
 .delete-icon:hover {
   color: #ef4444;
 }
+
+/* === Close Site Button === */
 .close-site-button {
   position: fixed;
   top: 10px;
@@ -317,9 +312,9 @@ body, html, #root {
   background-color: #ef4444;
   color: white;
   border: none;
-  padding: 8px 18px;
+  padding: 12px 28px;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
