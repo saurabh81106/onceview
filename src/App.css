@@ -32,6 +32,7 @@ body, html, #root {
   justify-content: center;
   align-items: center;
   padding: 20px;
+
 }
 
 .join input,
@@ -189,20 +190,19 @@ body, html, #root {
 
 .reply-preview {
   background-color: #333;
-  padding: 10px 14px;
+  padding: 10px;
   border-left: 4px solid #10b981;
+  margin: 10px 0;
   border-radius: 8px;
   color: #eee;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: flex-start; /* <-- Important for multiline alignment */
   font-style: italic;
-  font-size: 24px;
-  line-height: 2.5;
+  white-space: normal;     /* Allow wrapping */
   word-wrap: break-word;
-  max-width: 78%;
-  white-space: pre-wrap;
-  margin: 10px 0;
+  max-width: 100%;         /* Prevent overflow */
+  flex-wrap: wrap;
 }
 .cancel-reply {
   background: none;
