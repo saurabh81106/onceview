@@ -18,59 +18,55 @@ export default function App() {
   const [msg, setMsg] = useState("");
   const [msgs, setMsgs] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState({});
+  const [replyTo, setReplyTo] = useState(null);
   const [userId] = useState(() => localStorage.getItem("userId") || uuid());
 
-  useEffect(() => {
-    localStorage.setItem("userId", userId);
-  }, [userId]);
+  useEffect(() => localStorage.setItem("userId", userId), [userId]);
 
   useEffect(() => {
     if (!room) return;
-    const timer = setTimeout(() => {
+    const t = setTimeout(() => {
       alert("Session expired. Please enter room code again.");
       setRoom(null);
     }, 10 * 60 * 1000);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(t);
   }, [room]);
 
   const join = () => {
     if (!code) return;
     setRoom(code);
 
-    // Fetch messages
     onValue(ref(db, `rooms/${code}/messages`), (snap) => {
-      const val = snap.val();
-      setMsgs(val ? Object.values(val) : []);
+      const v = snap.val();
+      setMsgs(v ? Object.values(v) : []);
     });
 
-    // Set online status
     const statusRef = ref(db, `rooms/${code}/status/${userId}`);
-    set(statusRef, { online: true, typing: false });
-
-    // On disconnect update to offline and add lastSeen
+    set(statusRef, { online: true, typing: false, lastSeen: Date.now() });
     onDisconnect(statusRef).update({
       online: false,
       typing: false,
       lastSeen: Date.now(),
     });
 
-    // Fetch all user statuses
-    onValue(ref(db, `rooms/${code}/status`), (snap) => {
-      setOnlineUsers(snap.val() || {});
-    });
+    onValue(ref(db, `rooms/${code}/status`), (snap) =>
+      setOnlineUsers(snap.val() || {})
+    );
   };
 
   const send = () => {
-    if (!room || !msg) return;
+    if (!room || !msg.trim()) return;
+    const id = Date.now().toString();
     push(ref(db, `rooms/${room}/messages`), {
-      text: msg,
+      id,
+      text: msg.trim(),
       timestamp: Date.now(),
       sender: userId,
+      replyTo: replyTo ? replyTo.id : null,
     });
     setMsg("");
-    update(ref(db, `rooms/${room}/status/${userId}`), {
-      typing: false,
-    });
+    setReplyTo(null);
+    update(ref(db, `rooms/${room}/status/${userId}`), { typing: false });
   };
 
   const handleTyping = (e) => {
@@ -83,55 +79,67 @@ export default function App() {
 
   const deleteChat = () => {
     if (!room) return;
-    const confirmDelete = window.confirm("Are you sure you want to delete all chat messages?");
-    if (confirmDelete) {
+    if (window.confirm("Are you sure you want to delete all chat messages?")) {
       remove(ref(db, `rooms/${room}/messages`));
     }
   };
+
+  const getMsgById = (id) => msgs.find((m) => m.id === id);
 
   return (
     <div className="app">
       {!room ? (
         <div className="join">
           <h2>Enter Secret Code</h2>
-          <input value={code} onChange={(e) => setCode(e.target.value)} />
+          <input
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="Enter code..."
+          />
           <button onClick={join}>Join</button>
         </div>
       ) : (
         <div className="chat">
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div className="status-bar">
-              {Object.entries(onlineUsers).map(([id, st]) => (
-                <div key={id} className="status-item">
-                  <span style={{ color: st.online ? "lime" : "gray" }}>●</span>{" "}
-                  {id === userId ? "You" : "User"}{" "}
-                  {st.typing && id !== userId ? (
-                    <em>typing…</em>
-                  ) : !st.online && st.lastSeen ? (
-                    <em>
-                      last seen:{" "}
-                      {new Date(st.lastSeen).toLocaleTimeString("en-IN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        hour12: true,
-                      })}
-                    </em>
-                  ) : null}
-                </div>
-              ))}
+              {(() => {
+                const e = Object.entries(onlineUsers).filter(
+                  ([id]) => id !== userId
+                );
+                const onlineNow = e.filter(([, s]) => s.online);
+                const latestOffline = e
+                  .filter(([, s]) => !s.online && s.lastSeen)
+                  .sort((a, b) => b[1].lastSeen - a[1].lastSeen)
+                  .slice(0, 1);
+                const show = [...onlineNow, ...latestOffline];
+                return show.map(([id, st]) => (
+                  <div key={id} className="status-item">
+                    <span style={{ color: st.online ? "lime" : "gray" }}>●</span>{" "}
+                    User {st.typing && st.online ? (
+                      <em>typing…</em>
+                    ) : !st.online ? (
+                      <em>
+                        last seen{" "}
+                        {new Date(st.lastSeen).toLocaleTimeString("en-IN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}
+                      </em>
+                    ) : null}
+                  </div>
+                ));
+              })()}
             </div>
-
-            {room && (
-              <div className="delete-button-container">
-                <button
-                  onClick={deleteChat}
-                  className="delete-icon"
-                  title="Delete Chat"
-                >
-                  🗑️
-                </button>
-              </div>
-            )}
+            <div className="delete-button-container">
+              <button
+                onClick={deleteChat}
+                className="delete-icon"
+                title="Delete Chat"
+              >
+                🗑️
+              </button>
+            </div>
           </div>
 
           <div className="messages">
@@ -140,8 +148,12 @@ export default function App() {
                 key={i}
                 className={`message ${m.sender === userId ? "me" : "other"}`}
               >
-                <strong>{m.sender === userId ? "You" : "User"}:</strong>{" "}
-                {m.text}
+                {m.replyTo && (
+                  <div className="quote">
+                    {getMsgById(m.replyTo)?.text?.slice(0, 60) || "message"}
+                  </div>
+                )}
+                <strong>{m.sender === userId ? "You" : "User"}:</strong> {m.text}
                 <div className="timestamp">
                   {new Date(m.timestamp).toLocaleString("en-IN", {
                     day: "2-digit",
@@ -152,15 +164,38 @@ export default function App() {
                     hour12: true,
                   })}
                 </div>
+                <span
+                  style={{ marginLeft: 6, cursor: "pointer" }}
+                  title="Reply"
+                  onClick={() => setReplyTo({ id: m.id, text: m.text })}
+                >
+                  ↩️
+                </span>
               </div>
             ))}
           </div>
 
+          {replyTo && (
+            <div className="reply-preview">
+              Replying to: {replyTo.text.slice(0, 60)}
+              <button onClick={() => setReplyTo(null)} className="cancel-reply">
+                ❌
+              </button>
+            </div>
+          )}
+
           <div className="send">
-            <input
+            <textarea
               value={msg}
               onChange={handleTyping}
               placeholder="Type your message..."
+              rows={2}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
             />
             <button onClick={send}>Send</button>
           </div>
