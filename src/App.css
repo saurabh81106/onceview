@@ -1,7 +1,161 @@
-body, .app { margin:0; padding:0; font-family:sans-serif; }
-.app { background:#121212; color:#fff; min-height:100vh; display:flex; align-items:center; justify-content:center; }
-.join, .chat { background:#1e1e1e; padding:20px; border-radius:8px; width:300px; display:flex; flex-direction:column; gap:10px; }
-input { padding:8px; border-radius:4px; border:none; }
-button { padding:8px; background:#3f51b5; color:#fff; border:none; cursor:pointer; border-radius:4px; }
-.messages { max-height:200px; overflow-y:auto; background:#333; padding:8px; border-radius:4px; flex-grow:1; display:flex; flex-direction:column; gap:4px; }
-.message { background:#444; padding:6px; border-radius:4px; }
+/* Default layout aur background color */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #000; /* Black background */
+  color: #fff;
+}
+
+/* App ko screen ke beech me lane ke liye */
+.app {
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* Delete button ke liye */
+}
+
+/* Join aur Chat screen ke common style */
+.join, .chat {
+  background: #111;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+  width: 350px;
+  color: #fff;
+  position: relative; /* Top-right icon ke liye */
+}
+
+/* Heading center me */
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+/* Input boxes styling */
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+  outline: none;
+}
+
+/* Buttons styling */
+button {
+  margin-top: 15px;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Chat messages ke liye scrolling aur spacing */
+.messages {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual message ka box */
+.message {
+  padding: 10px 14px;
+  border-radius: 14px;
+  max-width: 80%;
+  word-wrap: break-word;
+  font-size: 15px;
+}
+
+/* Aapka message (right side blue) */
+.message.me {
+  align-self: flex-end;
+  background-color: #007bff;
+  color: white;
+}
+
+/* Dusre ka message (left side white) */
+.message.other {
+  align-self: flex-start;
+  background-color: #fff;
+  color: black;
+}
+
+/* Send message box */
+.send {
+  display: flex;
+  gap: 10px;
+}
+
+.send input {
+  flex: 1;
+  margin-top: 0;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+.send button {
+  margin-top: 0;
+  width: auto;
+  padding: 10px 15px;
+}
+
+/* Timestamp ka style (chhota aur halki color me) */
+.timestamp {
+  font-size: 11px;
+  color: #ccc;
+  margin-top: 5px;
+}
+
+/* === Online aur Typing Status === */
+.status-bar {
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  color: #ccc;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.status-item em {
+  color: #ffb347; /* Typing… ka color */
+  margin-left: 4px;
+  font-style: normal;
+}
+
+/* 🗑️ Delete icon top-right corner me light red color me */
+.delete-button-container {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
+.delete-icon {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #ff6b6b; /* Light red */
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.delete-icon:hover {
+  transform: scale(1.2);
+  color: #ff4c4c; /* Thoda aur darker red on hover */
+}
