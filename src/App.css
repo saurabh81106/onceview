@@ -1,36 +1,46 @@
-body {
+/* === Layout Reset === */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body, html, #root {
+  height: 100%;
+  width: 100%;
   font-family: 'Segoe UI', sans-serif;
   background-color: #111;
   color: #eee;
 }
 
+/* === App Container === */
 .app {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   height: 100vh;
-  padding: 16px;
+  width: 100vw;
 }
 
+/* === Join Screen === */
 .join {
-  background-color: #1e1e1e;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
-  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
 .join input {
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
   margin-top: 12px;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid #444;
   background-color: #222;
   color: white;
-  width: 250px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .join button {
@@ -40,135 +50,93 @@ body {
   background-color: #3b82f6;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
+  width: 100%;
+  max-width: 300px;
 }
 
 .join button:hover {
   background-color: #2563eb;
 }
 
+/* === Chat Screen === */
 .chat {
-  width: 100%;
-  max-width: 700px;
-  background-color: #1e1e1e;
-  padding: 16px;
-  border-radius: 16px;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 90vh;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  padding: 12px;
+  height: 100%;
+  width: 100%;
 }
 
+/* === Status Bar === */
 .status-bar {
-  font-size: 14px;
+  font-size: 13px;
   color: #aaa;
   margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .status-item {
-  margin: 2px 0;
+  margin-bottom: 2px;
 }
 
+/* === Messages === */
 .messages {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 6px;
+  padding-right: 4px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
 }
 
-/* Message Bubbles */
 .message {
   padding: 8px 12px;
-  border-radius: 16px;
+  border-radius: 12px;
   margin: 6px 0;
-  max-width: 70%;
+  max-width: 75%;
   word-wrap: break-word;
   font-size: 15px;
   line-height: 1.4;
   position: relative;
-  animation: bubble 0.2s ease-in-out;
 }
 
 .message.me {
+  align-self: flex-end;
   background-color: #3b82f6;
   color: white;
-  align-self: flex-end;
-  border-bottom-right-radius: 0;
 }
 
 .message.other {
-  background-color: #fff;
-  color: #000;
   align-self: flex-start;
-  border-bottom-left-radius: 0;
-}
-
-@keyframes bubble {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  background-color: #fff;
+  color: #111;
 }
 
 .message strong {
   display: block;
   margin-bottom: 4px;
-  color: #4fc3f7;
+  color: inherit;
 }
 
-.message .timestamp {
-  font-size: 12px;
-  color: #888;
+.timestamp {
+  font-size: 11px;
   margin-top: 4px;
+  color: #ccc;
 }
 
+/* === Reply Box === */
 .quote {
   font-size: 13px;
-  color: #888;
+  color: #aaa;
   margin-bottom: 6px;
-  border-left: 3px solid #ccc;
+  border-left: 3px solid #4fc3f7;
   padding-left: 8px;
   font-style: italic;
-}
-
-.send {
-  display: flex;
-  margin-top: 12px;
-  gap: 8px;
-}
-
-.send textarea {
-  flex: 1;
-  padding: 10px;
-  font-size: 16px;
-  border-radius: 10px;
-  background-color: #222;
-  color: #fff;
-  border: 1px solid #444;
-  resize: none;
-  line-height: 1.4;
-  height: 50px;
-}
-
-.send button {
-  padding: 12px 20px;
-  font-size: 16px;
-  background-color: #10b981;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
-}
-
-.send button:hover {
-  background-color: #059669;
 }
 
 .reply-preview {
@@ -196,8 +164,48 @@ body {
   color: #fff;
 }
 
+/* === Input Section === */
+.send {
+  display: flex;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #222;
+}
+
+.send textarea {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 10px;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #444;
+  resize: none;
+  line-height: 1.4;
+  height: 60px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.send button {
+  padding: 10px 16px;
+  font-size: 16px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+}
+
+.send button:hover {
+  background-color: #059669;
+}
+
+/* === Delete Button === */
 .delete-button-container {
   text-align: right;
+  margin-bottom: 8px;
 }
 
 .delete-icon {
@@ -213,7 +221,7 @@ body {
   color: #ef4444;
 }
 
-/* Scrollbar styling */
+/* === Scrollbar for Messages === */
 .messages::-webkit-scrollbar {
   width: 6px;
 }
