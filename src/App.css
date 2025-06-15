@@ -11,14 +11,17 @@ body, html, #root {
   font-family: 'Segoe UI', sans-serif;
   background-color: #111;
   color: #eee;
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* === App Container === */
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   width: 100vw;
+  overflow: hidden;
 }
 
 /* === Join Screen === */
@@ -31,8 +34,16 @@ body, html, #root {
   padding: 20px;
 }
 
+.join input,
+.send input,
+.send textarea,
+.send button,
+.join button {
+  font-size: 16px;
+}
+
 .join input {
-  padding: 12px;
+  padding: 14px;
   font-size: 16px;
   margin-top: 12px;
   border-radius: 10px;
@@ -40,12 +51,12 @@ body, html, #root {
   background-color: #222;
   color: white;
   width: 100%;
-  max-width: 300px;
+  max-width: 320px;
 }
 
 .join button {
   margin-top: 12px;
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-size: 16px;
   background-color: #3b82f6;
   color: white;
@@ -53,7 +64,7 @@ body, html, #root {
   border-radius: 10px;
   cursor: pointer;
   width: 100%;
-  max-width: 300px;
+  max-width: 320px;
 }
 
 .join button:hover {
@@ -65,9 +76,10 @@ body, html, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 12px;
   height: 100%;
   width: 100%;
+  position: relative;
+  padding: 8px 12px;
 }
 
 /* === Status Bar === */
@@ -89,49 +101,61 @@ body, html, #root {
   flex: 1;
   overflow-y: auto;
   padding-right: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* === Individual Message === */
+.message {
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin: 6px 0;
+  max-width: 85%;
+  word-wrap: break-word;
+  font-size: 16px;
+  line-height: 1.5;
+  position: relative;
   display: flex;
   flex-direction: column;
 }
 
-.message {
-  padding: 8px 12px;
-  border-radius: 12px;
-  margin: 6px 0;
-  max-width: 75%;
-  word-wrap: break-word;
-  font-size: 15px;
-  line-height: 1.4;
-  position: relative;
-}
-
+/* === Sent by user === */
 .message.me {
   align-self: flex-end;
   background-color: #3b82f6;
   color: white;
+  border-bottom-right-radius: 0;
 }
 
+/* === Received from others === */
 .message.other {
   align-self: flex-start;
-  background-color: #fff;
-  color: #111;
+ background-color: #fff;  
+  color: #111; 
+  border-bottom-left-radius: 0;
 }
 
-.message strong {
-  display: block;
-  margin-bottom: 4px;
-  color: inherit;
-}
-
-.timestamp {
-  font-size: 11px;
-  margin-top: 4px;
+/* === Forwarded Label === */
+.forwarded {
+  font-size: 12px;
   color: #ccc;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+/* === Timestamp inside message === */
+.timestamp {
+  font-size: 12px;
+  margin-top: 4px;
+  color: #aaa;
+  text-align: right;
 }
 
 /* === Reply Box === */
 .quote {
-  font-size: 13px;
+  font-size: 14px;
   color: #aaa;
   margin-bottom: 6px;
   border-left: 3px solid #4fc3f7;
@@ -168,34 +192,41 @@ body, html, #root {
 .send {
   display: flex;
   gap: 8px;
-  padding-top: 6px;
-  border-top: 1px solid #222;
+  padding: 8px 0;
+  position: sticky;
+  bottom: 0;
+  background-color: #111;
+  z-index: 10;
+  align-items: flex-end;
 }
 
 .send textarea {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
   border-radius: 10px;
   background-color: #222;
   color: #fff;
   border: 1px solid #444;
   resize: none;
-  line-height: 1.4;
-  height: 60px;
+  min-height: 40px;
   max-height: 120px;
   overflow-y: auto;
 }
 
 .send button {
-  padding: 10px 16px;
+  padding: 12px 18px;
   font-size: 16px;
-  background-color: #10b981;
+  background-color: #3b82f6;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  width: 48px;
 }
 
 .send button:hover {

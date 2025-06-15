@@ -3,3 +3,15 @@ events
 lifcycle hooks
 
 make form
+
+
+			15-06-2025  sunday 			
+user: hi {reply button}						
+6:45 pm seen/unseen  						
+								
+				{reply button} you: hi 
+						6:47 pm seen/unseen
+							
+							
+							
+[		type your message	][send]		
