@@ -118,7 +118,7 @@ export default function App() {
               })()}
             </div>
             <div className="delete-button-container">
-              <button onClick={deleteChat} className="delete-icon" title="Delete Chat">🗑️</button>
+              <button onClick={deleteChat} className="delete-icon" title="Delete Chat">☠️</button>
             </div>
           </div>
 
@@ -127,9 +127,15 @@ export default function App() {
             {msgs.map((m) => (
               <div key={m.id} className={`message ${m.sender === userId ? 'me' : 'other'}`}>
                 {m.replyTo && <div className="quote">{getMsgById(m.replyTo)?.text?.slice(0,60) || 'message'}</div>}
-                <strong>{m.sender === userId ? 'You' : 'User'}:</strong> {m.text}
+                <strong>{m.sender === userId ? 'You' : 'User👤'}:</strong> {m.text}
                 <div className="timestamp">{new Date(m.timestamp).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true })}</div>
-                <span style={{ marginLeft: 6, cursor: 'pointer' }} title="Reply" onClick={() => setReplyTo({ id: m.id, text: m.text })}>↩️</span>
+                <span
+  className={`reply-icon ${m.sender === userId ? 'left' : 'right'}`}
+  title="Reply"
+  onClick={() => setReplyTo({ id: m.id, text: m.text })}
+>
+  ⤶
+</span>
               </div>
             ))}
             {/* 🔚 invisible element to keep scroll at bottom */}
@@ -140,7 +146,7 @@ export default function App() {
           {replyTo && (
             <div className="reply-preview">
               Replying to: {replyTo.text.slice(0, 60)}
-              <button onClick={() => setReplyTo(null)} className="cancel-reply">❌</button>
+              <button onClick={() => setReplyTo(null)} className="cancel-reply">✖</button>
             </div>
           )}
 
