@@ -175,7 +175,7 @@ body, html, #root {
 
 /* === Reply Box === */
 .quote {
-  font-size: 14px;
+  font-size: 34px;
   color: #aaa;
   margin-bottom: 6px;
   border-left: 3px solid #4fc3f7;
@@ -185,19 +185,19 @@ body, html, #root {
 
 .reply-preview {
   background-color: #333;
-  padding: 10px;
+  padding: 12px;
   border-left: 4px solid #10b981;
   margin: 10px 0;
   border-radius: 8px;
   color: #eee;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   font-style: italic;
-  white-space: normal;
-  word-wrap: break-word;
-  max-width: 100%;
-  flex-wrap: wrap;
+  min-height: 60px;  /* Ensures visibility even for short replies */
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .cancel-reply {
