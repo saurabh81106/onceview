@@ -7,6 +7,7 @@ import {
   set,
   update,
   remove,
+  get,
   onDisconnect,
 } from "firebase/database";
 import { v4 as uuid } from "uuid";
@@ -21,7 +22,6 @@ export default function App() {
   const [replyTo, setReplyTo] = useState(null);
   const [userId] = useState(() => localStorage.getItem("userId") || uuid());
 
-  /* 🔽 ref for auto‑scroll */
   const messagesEndRef = useRef(null);
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -29,17 +29,6 @@ export default function App() {
 
   useEffect(() => localStorage.setItem("userId", userId), [userId]);
 
-  /* auto‑logout after 10 min */
-  useEffect(() => {
-    if (!room) return;
-    const t = setTimeout(() => {
-      alert("Session expired. Please enter room code again.");
-      setRoom(null);
-    }, 10 * 60 * 1000);
-    return () => clearTimeout(t);
-  }, [room]);
-
-  /* 👇 scroll whenever msgs change */
   useEffect(() => {
     scrollToBottom();
   }, [msgs]);
@@ -50,7 +39,8 @@ export default function App() {
 
     onValue(ref(db, `rooms/${code}/messages`), (snap) => {
       const v = snap.val();
-      setMsgs(v ? Object.values(v) : []);
+      const arr = v ? Object.values(v) : [];
+      setMsgs(arr);
     });
 
     const statusRef = ref(db, `rooms/${code}/status/${userId}`);
@@ -60,19 +50,60 @@ export default function App() {
     onValue(ref(db, `rooms/${code}/status`), (snap) => setOnlineUsers(snap.val() || {}));
   };
 
+  const limitMessages = async (roomId) => {
+    const msgRef = ref(db, `rooms/${roomId}/messages`);
+    const snap = await get(msgRef);
+    if (!snap.exists()) return;
+    const data = snap.val();
+    const keys = Object.keys(data);
+    if (keys.length > 500) {
+      const sorted = keys.sort((a, b) => data[a].timestamp - data[b].timestamp);
+      const deleteKey = sorted[0];
+      remove(ref(db, `rooms/${roomId}/messages/${deleteKey}`));
+    }
+  };
+
+  const deleteOldMessages = async (roomId) => {
+    const threshold = Date.now() - 72 * 60 * 60 * 1000; // 72 hours
+    const msgRef = ref(db, `rooms/${roomId}/messages`);
+    const snap = await get(msgRef);
+    if (!snap.exists()) return;
+    const data = snap.val();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value.timestamp < threshold) {
+        remove(ref(db, `rooms/${roomId}/messages/${key}`));
+      }
+    });
+  };
+
   const send = () => {
     if (!room || !msg.trim()) return;
-    const id = Date.now().toString();
+
+    const now = Date.now();
+    const id = now.toString();
+
+    const recentMsgs = msgs.filter((m) => m.sender === userId);
+    const recent2s = recentMsgs.filter((m) => now - m.timestamp < 1000);
+    const recentMin = recentMsgs.filter((m) => now - m.timestamp < 60000);
+    if (recent2s.length >= 2 || recentMin.length >= 20) {
+      alert("Rate limit exceeded. Max 2/sec and 20/min allowed.");
+      return;
+    }
+
     push(ref(db, `rooms/${room}/messages`), {
       id,
       text: msg.trim(),
-      timestamp: Date.now(),
+      timestamp: now,
       sender: userId,
       replyTo: replyTo ? replyTo.id : null,
     });
+
     setMsg("");
     setReplyTo(null);
     update(ref(db, `rooms/${room}/status/${userId}`), { typing: false });
+
+    limitMessages(room);
+    deleteOldMessages(room);
   };
 
   const handleTyping = (e) => {
@@ -92,17 +123,27 @@ export default function App() {
 
   const getMsgById = (id) => msgs.find((m) => m.id === id);
 
+  const getTypingUsers = () => {
+    return Object.entries(onlineUsers)
+      .filter(([id, s]) => id !== userId && s.online && s.typing)
+      .map(() => "Someone is typing...");
+  };
+
   return (
     <div className="app">
       {!room ? (
         <div className="join">
           <h2>Enter Premium Code</h2>
-          <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter code..." />
+          <input type="number" value={code}  onChange={(e) => {
+    const val = e.target.value;
+    if (/^\d{0,3}$/.test(val)) {
+      setCode(val);
+    }
+  }} placeholder="Enter or Create room No...." maxLength={3} />
           <button onClick={join}>Continue</button>
         </div>
       ) : (
         <div className="chat">
-          {/* status + delete */}
           <div style={{ display: "flex", justifyContent: "space-between" }}>
             <div className="status-bar">
               {(() => {
@@ -112,7 +153,7 @@ export default function App() {
                 const show = [...onlineNow, ...latestOffline];
                 return show.map(([id, st]) => (
                   <div key={id} className="status-item">
-                    <span style={{ color: st.online ? "lime" : "gray" }}>●</span> User {st.typing && st.online ? <em>typing…</em> : !st.online ? <em>last seen {new Date(st.lastSeen).toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit', hour12: true })}</em> : null}
+                    <span style={{ color: st.online ? "lime" : "gray" }}>●</span> User {st.online ? "" : <em>last seen {new Date(st.lastSeen).toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit', hour12: true })}</em>}
                   </div>
                 ));
               })()}
@@ -122,27 +163,24 @@ export default function App() {
             </div>
           </div>
 
-          {/* messages */}
           <div className="messages">
             {msgs.map((m) => (
               <div key={m.id} className={`message ${m.sender === userId ? 'me' : 'other'}`}>
-                {m.replyTo && <div className="quote">{getMsgById(m.replyTo)?.text?.slice(0,60) || 'message'}</div>}
+                {m.replyTo && <div className="quote">{getMsgById(m.replyTo)?.text?.slice(0, 60) || 'message'}</div>}
                 <strong>{m.sender === userId ? 'You' : 'User👤'}:</strong> {m.text}
-                <div className="timestamp">{new Date(m.timestamp).toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true })}</div>
+                <div className="timestamp">{new Date(m.timestamp).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true })}</div>
                 <span
-  className={`reply-icon ${m.sender === userId ? 'left' : 'right'}`}
-  title="Reply"
-  onClick={() => setReplyTo({ id: m.id, text: m.text })}
->
-  ⤶
-</span>
+                  className={`reply-icon ${m.sender === userId ? 'left' : 'right'}`}
+                  title="Reply"
+                  onClick={() => setReplyTo({ id: m.id, text: m.text })}
+                >
+                  ⤶
+                </span>
               </div>
             ))}
-            {/* 🔚 invisible element to keep scroll at bottom */}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* reply preview */}
           {replyTo && (
             <div className="reply-preview">
               Replying to: {replyTo.text.slice(0, 60)}
@@ -150,7 +188,13 @@ export default function App() {
             </div>
           )}
 
-          {/* send bar */}
+          {/* Typing indicator (bottom like Instagram) */}
+          {getTypingUsers().length > 0 && (
+            <div className="typing-indicator">
+              <em>{getTypingUsers().join(", ")}</em>
+            </div>
+          )}
+
           <div className="send">
             <textarea
               value={msg}

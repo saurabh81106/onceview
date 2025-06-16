@@ -299,6 +299,14 @@ body, html, #root {
   color: #ef4444;
 }
 
+.typing-indicator {
+  font-style: italic;
+  font-size: 2.9rem;
+  color: #777;
+  margin-left: 10px;
+  margin-bottom: 5px;
+}
+
 /* === Close Site Button === */
 .close-site-button {
   position: fixed;
